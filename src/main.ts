@@ -308,7 +308,7 @@ function drawSet(
 
 document.addEventListener("DOMContentLoaded", function () {
    // zooming
-   return;
+   /*
    let draw_start = null as { x: number; y: number } | null;
    let draw_end = null as { x: number; y: number } | null;
 
@@ -361,6 +361,7 @@ document.addEventListener("DOMContentLoaded", function () {
          { once: true }
       );
    });
+   */
 });
 
 function zoom(scale: number) {
@@ -384,7 +385,7 @@ function zoom(scale: number) {
    drawSet();
 }
 
-function move(x, y) {
+function move(x: number, y: number) {
    let fromX = document.querySelector<HTMLInputElement>("#from-x")?.valueAsNumber;
    let toX = document.querySelector<HTMLInputElement>("#to-x")?.valueAsNumber;
    let fromY = document.querySelector<HTMLInputElement>("#from-y")?.valueAsNumber;

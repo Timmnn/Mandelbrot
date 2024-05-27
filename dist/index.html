@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Mandelbrot</title>
+     <script type="module" crossorigin src="/assets/index-CGHdUoQT.js"></script>
+     <link rel="stylesheet" crossorigin href="/assets/index-BLpmeMW5.css">
+   </head>
+   <body>
+      <div id="app">
+         <canvas
+            id="mandelbrot-canvas"
+            style="aspect-ratio: 1; width: 75vw; border: 1px solid black"></canvas>
+         <div class="toolbar">
+            <div class="inputs">
+               <button onclick="window.drawSet()">Draw</button>
+               <label>
+                  Box count:
+                  <input type="number" id="box-count" value="500" step="1" />
+               </label>
+               <label>
+                  Iterations:
+                  <input type="number" id="iterations" value="20" />
+               </label>
+
+               <label>
+                  From x:
+                  <input type="number" id="from-x" value="-2.2" step="0.1" />
+               </label>
+               <label>
+                  To x:
+                  <input type="number" id="to-x" value="2.2" step="0.1" />
+               </label>
+               <label>
+                  From y:
+                  <input type="number" id="from-y" value="-2.2" step="0.1" />
+               </label>
+               <label>
+                  To y:
+                  <input type="number" id="to-y" value="2.2" step="0.1" />
+               </label>
+            </div>
+            <div class="controls">
+               <button onclick="window.zoom(0.1)" class="zoomIn">+</button>
+               <button onclick="window.zoom(-0.1)" class="zoomOut">-</button>
+               <button onclick="window.move(0,-0.1)" class="moveUp">↑</button>
+               <button onclick="window.move(0,0.1)" class="moveDown">↓</button>
+               <button onclick="window.move(-0.1,0)" class="moveLeft">←</button>
+               <button onclick="window.move(0.1,0)" class="moveRight">→</button>
+            </div>
+         </div>
+      </div>
+   </body>
+</html>
