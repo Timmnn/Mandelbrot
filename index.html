@@ -7,34 +7,38 @@
    </head>
    <body>
       <div id="app">
-         <canvas
-            id="mandelbrot-canvas"
-            style="aspect-ratio: 1; width: 75vw; border: 1px solid black"></canvas>
+         <h1>Mandelbrot Set</h1>
+         <canvas id="mandelbrot-canvas"></canvas>
          <div class="toolbar">
             <div class="inputs">
                <button onclick="window.drawSet()">Draw</button>
                <label>
                   Box count:
-                  <input type="number" id="box-count" value="500" step="1" />
+                  <input type="number" id="box-count" value="300" step="1" />
                </label>
                <label>
                   Iterations:
                   <input type="number" id="iterations" value="20" />
                </label>
 
-               <label>
+               <label style="display: none">
+                  <!-- Deaktiviert-->
+
                   From x:
                   <input type="number" id="from-x" value="-2.2" step="0.1" />
                </label>
-               <label>
+               <label style="display: none">
+                  <!-- Deaktiviert-->
                   To x:
                   <input type="number" id="to-x" value="2.2" step="0.1" />
                </label>
-               <label>
+               <label style="display: none">
+                  <!-- Deaktiviert-->
                   From y:
                   <input type="number" id="from-y" value="-2.2" step="0.1" />
                </label>
-               <label>
+               <label style="display: none">
+                  <!-- Deaktiviert-->
                   To y:
                   <input type="number" id="to-y" value="2.2" step="0.1" />
                </label>

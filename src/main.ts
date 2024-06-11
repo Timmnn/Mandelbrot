@@ -45,6 +45,7 @@ class Gradient {
    }
 
    getColor(value: number): string {
+      // Clamp value between 0 and 1
       const index = Math.floor(value * (this.colors.length - 1));
       return this.colors[index];
    }
@@ -62,6 +63,9 @@ class Gradient {
 }
 
 function getMandelbrotValueAtPosition(x: number, y: number, maxIterations: number): number {
+   // Mandelbrot set: z = z^2 + c
+   // c = x + yi
+   // z = 0
    const c = new ComplexNumber(x, y);
    let z = new ComplexNumber(0, 0);
 
@@ -85,23 +89,17 @@ function generateSet(
 ): number[][] {
    const set: number[][] = new Array(Math.ceil((x_end - x_start) / squareWidth))
       .fill(null)
-      .map(() => new Array(Math.ceil((y_end - y_start) / squareHeight)).fill(null));
+      .map(() => new Array(Math.ceil((y_end - y_start) / squareHeight)).fill("a"));
 
    const calculations = set.length * set[0].length;
    let finished = 0;
 
-   for (let x = x_start; x < x_end; x += squareWidth) {
-      for (let y = y_start; y < y_end; y += squareHeight) {
-         const { x: x_index, y: y_index } = coordsToSetIndices(
-            x,
-            y,
-            x_start,
-            y_start,
-            squareWidth,
-            squareHeight
-         );
+   let x_coord = x_start;
+   for (let x_index = 0; x_index < set.length; x_index++) {
+      let y_coord = y_start;
 
-         set[x_index][y_index] = getMandelbrotValueAtPosition(x, y, maxIterations);
+      for (let y_index = 0; y_index < set[x_index].length; y_index++) {
+         set[x_index][y_index] = getMandelbrotValueAtPosition(x_coord, y_coord, maxIterations);
 
          finished++;
 
@@ -112,24 +110,12 @@ function generateSet(
                )}%)`
             );
          }
+         y_coord += squareHeight;
       }
+      x_coord += squareWidth;
    }
 
    return set;
-}
-
-function coordsToSetIndices(
-   x: number,
-   y: number,
-   x_start: number,
-   y_start: number,
-   squareWidth: number,
-   squareHeight: number
-): { x: number; y: number } {
-   return {
-      x: Math.floor((x - x_start) / squareWidth),
-      y: Math.floor((y - y_start) / squareHeight),
-   };
 }
 
 function drawSet(
@@ -153,6 +139,9 @@ function drawSet(
    ctx.fillStyle = "black";
 
    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+   const autoSetIterations =
+      document.querySelector<HTMLInputElement>("#auto-set-iterations")?.checked;
 
    const maxIterations =
       options.max_iterations ||
@@ -184,7 +173,7 @@ function drawSet(
    const boxSizeX = (toX - fromX) / boxCountX;
    const boxSizeY = (toY - fromY) / boxCountX;
 
-   const set = generateSet(fromX, toX, fromY, toY, boxSizeX, boxSizeY, maxIterations);
+   let set = generateSet(fromX, toX, fromY, toY, boxSizeX, boxSizeY, maxIterations);
 
    canvas.width = canvas.clientWidth;
    canvas.height = canvas.clientHeight;
@@ -285,8 +274,6 @@ function drawSet(
       "#D2FFFF",
    ]);
 
-   //grad.debugOutput();
-
    let cells = set.length * set[0].length;
    let drawn = 0;
 
@@ -306,63 +293,45 @@ function drawSet(
    }
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-   // zooming
-   /*
-   let draw_start = null as { x: number; y: number } | null;
-   let draw_end = null as { x: number; y: number } | null;
-
-   const canvas = document.querySelector("canvas");
-
-   if (!canvas) throw "No canvas found";
-
-   canvas.addEventListener("mousedown", e => {
-      // x and y mouse pos  as a fraction of the canvas size
-      draw_start = {
-         x: (e.clientX - canvas.getBoundingClientRect().left) / canvas.clientWidth,
-         y: (e.clientY - canvas.getBoundingClientRect().top) / canvas.clientHeight,
-      };
-
-      document.addEventListener(
-         "mouseup",
-         (e: MouseEvent) => {
-            draw_end = {
-               x: (e.clientX - canvas.getBoundingClientRect().left) / canvas.clientWidth,
-               y: (e.clientY - canvas.getBoundingClientRect().top) / canvas.clientHeight,
-            };
-
-            // @ts-ignore
-            const old_start = {
-               x: drawSet.previouslyDrawn?.from_x,
-               y: drawSet.previouslyDrawn?.from_y,
-            };
-
-            const old_end = {
-               x: drawSet.previouslyDrawn?.to_x,
-               y: drawSet.previouslyDrawn?.to_y,
-            };
-
-            console.log("Debug", {
-               from_x: old_start.x + (old_end.x - old_start.x) * draw_start.x,
-               to_x: old_start.x + (old_end.x - old_start.x) * draw_end.x,
-               from_y: old_start.y + (old_end.y - old_start.y) * draw_start.y,
-               to_y: old_start.y + (old_end.y - old_start.y) * draw_end.y,
-               max_iterations: drawSet.previouslyDrawn?.max_iterations,
-            });
-
-            drawSet({
-               from_x: old_start.x + (old_end.x - old_start.x) * draw_start.x,
-               to_x: old_start.x + (old_end.x - old_start.x) * draw_end.x,
-               from_y: old_start.y + (old_end.y - old_start.y) * draw_start.y,
-               to_y: old_start.y + (old_end.y - old_start.y) * draw_end.y,
-               max_iterations: drawSet.previouslyDrawn?.max_iterations,
-            });
-         },
-         { once: true }
-      );
-   });
-   */
+// Keyboard shortcuts
+document.addEventListener("keydown", e => {
+   switch (e.key) {
+      case "+":
+         zoom(0.1);
+         break;
+      case "-":
+         zoom(-0.1);
+         break;
+      case "ArrowUp":
+      case "w":
+         move(0, -0.1);
+         break;
+      case "ArrowDown":
+      case "s":
+         move(0, 0.1);
+         break;
+      case "ArrowLeft":
+      case "a":
+         move(-0.1, 0);
+         break;
+      case "ArrowRight":
+      case "d":
+         move(0.1, 0);
+         break;
+   }
 });
+
+document.addEventListener("wheel", e => {
+   if (e.deltaY > 0) {
+      zoom(-0.1);
+   } else {
+      zoom(0.1);
+   }
+});
+
+function roundToDecimals(num: number, decimals: number) {
+   return Math.round(num * 10 ** decimals) / 10 ** decimals;
+}
 
 function zoom(scale: number) {
    let fromX = document.querySelector<HTMLInputElement>("#from-x")?.valueAsNumber;
@@ -377,10 +346,15 @@ function zoom(scale: number) {
    let xDiff = toX - fromX;
    let yDiff = toY - fromY;
 
-   document.querySelector<HTMLInputElement>("#from-x")!.value = (fromX + xDiff * scale).toString();
-   document.querySelector<HTMLInputElement>("#to-x")!.value = (toX - xDiff * scale).toString();
-   document.querySelector<HTMLInputElement>("#from-y")!.value = (fromY + yDiff * scale).toString();
-   document.querySelector<HTMLInputElement>("#to-y")!.value = (toY - yDiff * scale).toString();
+   const new_from_x = roundToDecimals(fromX + xDiff * scale, 10);
+   const new_to_x = roundToDecimals(toX - xDiff * scale, 10);
+   const new_from_y = roundToDecimals(fromY + yDiff * scale, 10);
+   const new_to_y = roundToDecimals(toY - yDiff * scale, 10);
+
+   document.querySelector<HTMLInputElement>("#from-x")!.value = new_from_x.toString();
+   document.querySelector<HTMLInputElement>("#to-x")!.value = new_to_x.toString();
+   document.querySelector<HTMLInputElement>("#from-y")!.value = new_from_y.toString();
+   document.querySelector<HTMLInputElement>("#to-y")!.value = new_to_y.toString();
 
    drawSet();
 }
@@ -415,4 +389,9 @@ window.zoom = zoom;
 // @ts-ignore
 window.move = move;
 
-window.onload = drawSet;
+window.onload = () => {
+   drawSet();
+   alert(
+      "Use the arrow keys to move around and the + and - keys or mouse wheel to zoom in and out."
+   );
+};
