@@ -140,9 +140,6 @@ function drawSet(
 
    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-   const autoSetIterations =
-      document.querySelector<HTMLInputElement>("#auto-set-iterations")?.checked;
-
    const maxIterations =
       options.max_iterations ||
       document.querySelector<HTMLInputElement>("#iterations")?.valueAsNumber ||
